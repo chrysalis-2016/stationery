@@ -47,6 +47,12 @@ button { cursor: pointer; border: 0; }
 .nav { display: grid; gap: 6px; }
 .nav button { text-align: left; padding: 12px 14px; border-radius: 10px; color: var(--muted); background: transparent; font-weight: 600; }
 .nav button.active, .nav button:hover { background: #edf2ff; color: var(--brand); }
+.sidebar-stock-section { margin: 14px 4px 0; padding: 12px; border: 1px solid #ffd7dc; background: #fff7f8; border-radius: 12px; color: var(--rose-ink); }
+.sidebar-stock-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+.sidebar-stock-title span { min-width: 22px; padding: 2px 6px; border-radius: 99px; background: #fff; text-align: center; }
+.sidebar-stock-items { display: grid; gap: 6px; max-height: 150px; margin-top: 9px; overflow-y: auto; }
+.sidebar-stock-items span { padding: 6px 8px; border-radius: 8px; background: #fff; border: 1px solid #ffd7dc; font-size: 11px; color: var(--text); }
+.sidebar-stock-items small { color: #16806a; }
 .side-bottom { margin-top: auto; padding: 14px; border-top: 1px solid var(--line); }
 .profile { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
 .avatar { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 12px; color: #fff; background: var(--brand); font-weight: 700; }
