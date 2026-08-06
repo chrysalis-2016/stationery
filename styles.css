@@ -124,6 +124,8 @@ button { cursor: pointer; border: 0; }
 .stock-alert-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .stock-alert-list span { padding: 6px 9px; border-radius: 99px; background: #fff; border: 1px solid #ffd7dc; font-size: 12px; }
 .stock-alert-list b { margin-left: 5px; }
+.overview-stock-alert { margin-bottom: 18px; }
+.stock-alert-list .stock-ok { color: #16806a; border-color: #c7eee4; background: #f2fffb; }
 .item.unavailable { border-color: #ffd7dc; background: #fffafb; }
 .stock-label.out { color: var(--rose-ink); background: #fff0f2; }
 .item button:disabled { cursor: not-allowed; opacity: .75; }
