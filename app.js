@@ -50,6 +50,13 @@ function renderLogin() {
 function renderApp() {
   const isAdmin = state.user.role === "admin";
   app.innerHTML = `<main class="app-shell"><aside class="sidebar"><div class="brand">Stationery<span>Hub</span></div><nav class="nav">${isAdmin ? `<button data-page="overview" class="${state.page === "overview" ? "active" : ""}">▦ Overview</button><button data-page="manage" class="${state.page === "manage" ? "active" : ""}">＋ Manage items</button><button data-page="requests" class="${state.page === "requests" ? "active" : ""}">✓ Requests</button><button data-page="reports" class="${state.page === "reports" ? "active" : ""}">▤ Monthly reports</button><button data-page="staff" class="${state.page === "staff" ? "active" : ""}">♙ Staff users</button>` : `<button data-page="catalog" class="${state.page === "catalog" ? "active" : ""}">▤ Item catalog</button><button data-page="history" class="${state.page === "history" ? "active" : ""}">◷ My requests</button>`}</nav><div class="side-bottom"><div class="profile"><div class="avatar">${state.user.name[0]}</div><div><strong>${escapeHtml(state.user.name)}</strong><small>${isAdmin ? "Administrator" : escapeHtml(state.user.position || "Staff member")}</small></div></div><button class="logout" id="logout">Log out</button></div></aside><section class="main">${pageContent(isAdmin)}</section></main>`;
+  if (isAdmin) {
+    const zeroStock = store.items.filter((item) => item.stock === 0);
+    const stockSection = document.createElement("div");
+    stockSection.className = "sidebar-stock-section";
+    stockSection.innerHTML = `<div class="sidebar-stock-title"><strong>Out-of-stock items</strong><span>${zeroStock.length}</span></div><div class="sidebar-stock-items">${zeroStock.length ? zeroStock.map((item) => `<span>${escapeHtml(item.name)}</span>`).join("") : `<small>All items have stock</small>`}</div>`;
+    document.querySelector(".nav").insertAdjacentElement("afterend", stockSection);
+  }
   document.querySelectorAll("[data-page]").forEach((button) => button.addEventListener("click", () => { state.page = button.dataset.page; state.selected = []; state.quantities = {}; render(); }));
   document.querySelector("#logout").addEventListener("click", () => { state.user = null; state.selected = []; state.quantities = {}; render(); });
   bindPageEvents(isAdmin);
@@ -115,6 +122,11 @@ function adminOverview() {
   const requests = store.requests;
   const zeroStock = store.items.filter((item) => item.stock === 0);
   return `<div class="stats"><div class="stat"><span class="stat-label">Catalog items</span><strong>${store.items.length}</strong></div><div class="stat"><span class="stat-label">Waiting for reserve</span><strong>${requests.filter((r) => r.status === "Pending").length}</strong></div><div class="stat"><span class="stat-label">Reserved requests</span><strong>${requests.filter((r) => r.status === "Reserved").length}</strong></div><div class="stat"><span class="stat-label">Total requests</span><strong>${requests.length}</strong></div></div><div class="stock-alert-card overview-stock-alert"><div><strong>Out-of-stock items</strong><span>${zeroStock.length} items</span></div><div class="stock-alert-list">${zeroStock.length ? zeroStock.map((item) => `<span>${escapeHtml(item.name)} <b>0</b></span>`).join("") : `<span class="stock-ok">All catalog items have stock</span>`}</div></div><div class="card"><div class="card-header"><h2>Recent activity</h2><button class="outline-btn" data-page="requests">View all</button></div>${requests.length ? requestTable(requests.slice().reverse().slice(0, 8), true) : `<div class="empty">No requests yet. New staff requests will appear here.</div>`}</div>`;
+}
+
+function adminOverview() {
+  const requests = store.requests;
+  return `<div class="stats"><div class="stat"><span class="stat-label">Catalog items</span><strong>${store.items.length}</strong></div><div class="stat"><span class="stat-label">Waiting for reserve</span><strong>${requests.filter((r) => r.status === "Pending").length}</strong></div><div class="stat"><span class="stat-label">Reserved requests</span><strong>${requests.filter((r) => r.status === "Reserved").length}</strong></div><div class="stat"><span class="stat-label">Total requests</span><strong>${requests.length}</strong></div></div><div class="card"><div class="card-header"><h2>Recent activity</h2><button class="outline-btn" data-page="requests">View all</button></div>${requests.length ? requestTable(requests.slice().reverse().slice(0, 8), true) : `<div class="empty">No requests yet. New staff requests will appear here.</div>`}</div>`;
 }
 
 render();
