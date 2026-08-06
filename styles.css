@@ -118,6 +118,15 @@ button { cursor: pointer; border: 0; }
 .stock-editor { display: flex; align-items: center; gap: 7px; }
 .stock-editor input { width: 48px; padding: 6px; border: 1px solid var(--line); border-radius: 7px; }
 .stock-remove-btn { color: var(--rose-ink); border-color: #ffd0d5; }
+.stock-alert-card { margin-top: 18px; padding: 16px 20px; border: 1px solid #ffd7dc; background: #fff7f8; border-radius: 15px; color: var(--rose-ink); }
+.stock-alert-card > div:first-child { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; }
+.stock-alert-card > div:first-child span { color: var(--muted); font-size: 12px; }
+.stock-alert-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.stock-alert-list span { padding: 6px 9px; border-radius: 99px; background: #fff; border: 1px solid #ffd7dc; font-size: 12px; }
+.stock-alert-list b { margin-left: 5px; }
+.item.unavailable { border-color: #ffd7dc; background: #fffafb; }
+.stock-label.out { color: var(--rose-ink); background: #fff0f2; }
+.item button:disabled { cursor: not-allowed; opacity: .75; }
 .table-actions button { padding: 7px 9px; border-radius: 7px; font-size: 11px; font-weight: 700; }
 .approve { background: var(--mint); color: var(--mint-ink); }
 .reject, .danger { background: var(--rose); color: var(--rose-ink); }
