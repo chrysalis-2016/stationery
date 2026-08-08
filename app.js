@@ -1,4 +1,4 @@
-const seedStock = [2, 2, 6, 5, 13, 3, 1, 1, 2, 1, 1, 3, 2, 3, 1, 6, 7, 1, 1, 10, 2, 2, 22, 82, 2, 56, 7, 7, 9, 6, 78, 39, 3, 3, 7, 4, 2, 2, 6, 6, 1, 1, 36, 66, 5, 9, 18, 9, 2, 5, 1, 4, 1, 5, 5, 4, 4, 2, 2, 7, 1, 4, 4, 6, 3, 6, 10, 7, 50, 50];
+const seedStock = Array(70).fill(0);
 const seedItems = [
   "Small note books", "Note books 100 pgs", "Double tape white 2 inch", "Masking Tape 01 inch", "Brown tape 2 inch", "Cello tape 2 inch", "ceelo tape 1 inch", "Cello tape 1 inch", "Cello Tape Brown 1 inch", "Double tape white 2 inch", "Double Tape white 1 inch", "Double Tape White 1/2 inch", "Masking Tape 02 inch 1/2 inch", "Glue Bottele 750 ML", "Glue Bottele 320 ML", "Business File - Black", "Business File - Blue", "Business File - Red", "Business File Large", "Cleat Bag", "Rubber Band", "Falsh Card", "Transperant Covers", "Transperant Sheets", "Photocopy paper -Leagl", "Sticky Note", "Sticky Note (Small)", "Color pencil - (06 Color box)", "Color pencil - (12 Color box)", "Pencil Box", "Pencil", "Pencil Cour Yard", "Paper cutter", "Stepler Pin -Small", "Stepler Pin -Small (1mm)", "Thumb Pack", "Binder Clip", "Push Pin", "BInder Clip - Large", "Erasers", "Put Rule - Small", "Toothpick", "Bule pen", "Red pen", "Permenet Marker- Orange", "Permenet Marker- Red", "Permenet Marker - Green", "Permenet Marker - Black", "Permenent Marker - Yellow", "Stepler Pin", "Super Glue", "white Board Marker -Blue", "white Board Marker -Black", "Wood Clip", "Pastal 24 colour", "Stickey note", "Pastal 12 colour", "Puncher", "Gule Tag", "Put rule - 30 cm", "White Board Earser", "Higlihter Yellow", "Higlihter Green", "Highliter Blue", "Safety pin", "Black clips", "Binder clips Small", "Stepler Box (1000*10)", "Tea Candle", "ID cover"
 ].map((name, index) => ({ id: `seed-${index + 1}`, name, stock: seedStock[index] ?? 0, source: "Excel catalog" }));
@@ -60,6 +60,7 @@ function renderApp() {
   document.querySelectorAll("[data-page]").forEach((button) => button.addEventListener("click", () => { state.page = button.dataset.page; state.selected = []; state.quantities = {}; render(); }));
   document.querySelector("#logout").addEventListener("click", () => { state.user = null; state.selected = []; state.quantities = {}; render(); });
   bindPageEvents(isAdmin);
+  bindStockManagementEvents();
 }
 
 function pageContent(isAdmin) {
@@ -129,4 +130,48 @@ function adminOverview() {
   return `<div class="stats"><div class="stat"><span class="stat-label">Catalog items</span><strong>${store.items.length}</strong></div><div class="stat"><span class="stat-label">Waiting for reserve</span><strong>${requests.filter((r) => r.status === "Pending").length}</strong></div><div class="stat"><span class="stat-label">Reserved requests</span><strong>${requests.filter((r) => r.status === "Reserved").length}</strong></div><div class="stat"><span class="stat-label">Total requests</span><strong>${requests.length}</strong></div></div><div class="card"><div class="card-header"><h2>Recent activity</h2><button class="outline-btn" data-page="requests">View all</button></div>${requests.length ? requestTable(requests.slice().reverse().slice(0, 8), true) : `<div class="empty">No requests yet. New staff requests will appear here.</div>`}</div>`;
 }
 
+function resetImportedStockOnce() {
+  const resetKey = "stationery_stock_reset_2026_08_08";
+  if (localStorage.getItem(resetKey)) return;
+  store.items = store.items.map((item) => ({ ...item, stock: 0 }));
+  localStorage.setItem(resetKey, "done");
+}
+
+resetImportedStockOnce();
 render();
+
+function manageItems() {
+  const zeroStock = store.items.filter((item) => item.stock === 0);
+  return `<div class="card"><div class="add-panel"><div class="field"><label for="new-item">New item name</label><input id="new-item" placeholder="e.g. A4 file cover" /></div><div class="field"><label for="item-stock">Starting stock</label><input id="item-stock" type="number" min="0" value="0" /></div><div class="field"><label for="item-note">Optional note</label><input id="item-note" placeholder="Category or detail" /></div><button class="primary-btn" id="add-item">Add item</button></div></div>${zeroStock.length ? `<div class="stock-alert-card"><div><strong>Out-of-stock items</strong><span>${zeroStock.length} items need stock</span></div><div class="stock-alert-list">${zeroStock.map((item) => `<span>${escapeHtml(item.name)} <b>0</b></span>`).join("")}</div></div>` : ""}<div class="card" style="margin-top:18px"><div class="card-header"><h2>All items <span style="color:var(--muted);font-size:13px;font-family:DM Sans">(${store.items.length})</span></h2><input class="search" id="manage-search" placeholder="Search items" value="${escapeHtml(state.search)}" /></div><div class="table-wrap"><table class="admin-table"><thead><tr><th>#</th><th>Item name</th><th>Current stock</th><th>Status</th><th>Source</th><th></th></tr></thead><tbody>${filteredItems().map((item, index) => `<tr><td>${index + 1}</td><td><div class="item-name-editor"><strong>${escapeHtml(item.name)}</strong><button class="outline-btn compact-btn" data-item-edit="${item.id}">Edit</button></div></td><td><div class="stock-editor"><strong>${item.stock}</strong><input type="number" min="0" value="${item.stock}" data-stock-set-input="${item.id}" /><button class="outline-btn compact-btn" data-stock-set="${item.id}">Set</button><input type="number" min="1" value="1" data-stock-input="${item.id}" /><button class="outline-btn" data-stock-add="${item.id}">+ Add</button><button class="outline-btn stock-remove-btn" data-stock-remove="${item.id}">Remove</button></div></td><td><span class="badge ${item.stock === 0 ? "rejected" : "approved"}">${item.stock === 0 ? "Out of stock" : "Available"}</span></td><td style="color:var(--muted)">${escapeHtml(item.source || "Added by admin")}</td><td style="text-align:right"><button class="table-actions danger" data-remove="${item.id}">Remove</button></td></tr>`).join("")}</tbody></table></div></div>`;
+}
+
+function bindStockManagementEvents() {
+  document.querySelectorAll("[data-stock-set]").forEach((button) => button.addEventListener("click", () => {
+    const row = button.closest("tr");
+    const input = row?.querySelector("[data-stock-set-input]");
+    const itemId = button.dataset.stockSet;
+    const item = store.items.find((candidate) => candidate.id === itemId);
+    if (!item) return;
+    const nextStock = Math.max(0, Number(input?.value) || 0);
+    const pending = pendingQuantity(item.id);
+    if (nextStock < pending) return toast(`Cannot set ${item.name} below ${pending} already reserved`);
+    store.items = store.items.map((candidate) => candidate.id === itemId ? { ...candidate, stock: nextStock } : candidate);
+    toast(`${item.name} stock set to ${nextStock}`);
+    render();
+  }));
+  document.querySelectorAll("[data-item-edit]").forEach((button) => button.addEventListener("click", () => {
+    const itemId = button.dataset.itemEdit;
+    const item = store.items.find((candidate) => candidate.id === itemId);
+    if (!item) return;
+    const nextName = window.prompt("Edit item name", item.name)?.trim();
+    if (!nextName || nextName === item.name) return;
+    if (store.items.some((candidate) => candidate.id !== itemId && candidate.name.toLowerCase() === nextName.toLowerCase())) return toast("That item name already exists");
+    store.items = store.items.map((candidate) => candidate.id === itemId ? { ...candidate, name: nextName } : candidate);
+    store.requests = store.requests.map((request) => {
+      const lines = requestLines(request).map((line) => line.id === itemId ? { ...line, name: nextName } : line);
+      return { ...request, lineItems: lines, items: lines.map((line) => line.name) };
+    });
+    toast(`${nextName} updated`);
+    render();
+  }));
+}
